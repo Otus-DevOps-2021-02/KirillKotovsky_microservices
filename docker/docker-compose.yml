@@ -10,10 +10,8 @@ services:
     volumes:
       - post_db:/data/db
     networks:
-      back_net:
-        aliases:
-          - post_db
-          - comment_db
+      - back-network
+      - front-network
 
   ui:
     env_file:
@@ -29,8 +27,8 @@ services:
         fluentd-address: localhost:24224
         tag: service.ui
     networks:
-      - front_net
-      - back_net
+      - back-network
+      - front-network
 
   post:
     env_file:
@@ -50,7 +48,8 @@ services:
         fluentd-address: localhost:24224
         tag: service.post
     networks:
-      - back_net
+      - back-network
+      - front-network
 
   comment:
     env_file:
@@ -59,7 +58,8 @@ services:
     environment:
       - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     networks:
-      - back_net
+      - back-network
+      - front-network
 
   prometheus:
     image: ${DOCKER_USERNAME}/prometheus
@@ -72,8 +72,8 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention=1d' # Задаем время хранения метрик в 1 день
     networks:
-      - front_net
-      - back_net
+      - back-network
+      - front-network
 
   node-exporter:
     image: prom/node-exporter:v0.15.2
@@ -87,12 +87,21 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     networks:
-      - front_net
+      - back-network
+      - front-network
 
 volumes:
   post_db:
   prometheus_data:
 
 networks:
-  front_net:
-  back_net:
+  back-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.2.0/24
+  front-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.1.0/24
