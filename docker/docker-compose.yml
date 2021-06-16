@@ -1,31 +1,41 @@
 version: '3.3'
 services:
   post_db:
-    image: mongo:3.2
+    image: kirillkotovsky/post:logging
     volumes:
       - post_db:/data/db
     networks:
       - back-network
+      - front-network
+      
   ui:
     build: ./ui
-    image: ${USERNAME}/${UI_VERSION}
+    image: kirillkotovsky/ui:logging
     ports:
       - ${UI_PORT}
     networks:
       - front-network
-  post:
-    build: ./post-py
-    image: ${USERNAME}/post:2.0
-    networks:
       - back-network
-      - front-network
+  post:
+    image: ${USER_NAME}/post
+    environment:
+      - POST_DATABASE_HOST=post_db
+      - POST_DATABASE=posts
+    depends_on:
+      - post_db
+    ports:
+      - "5000:5000"
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.post
   comment:
     build: ./comment
-    image: ${USERNAME}/comment:1.0
+    image: kirillkotovsky/comment:logging
     networks:
       - back-network
-      - front-network
-      
+      - front-network 
 volumes:
   post_db:
 
