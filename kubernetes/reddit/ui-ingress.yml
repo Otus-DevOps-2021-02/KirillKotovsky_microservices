@@ -10,7 +10,7 @@ spec:
   tls:
   - hosts:
       - https-84.201.128.18
-    secretName: testsecret-tls
+    secretName: sui-ingress
   rules:
     http:
       paths:
