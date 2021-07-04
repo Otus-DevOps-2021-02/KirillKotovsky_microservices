@@ -10,7 +10,7 @@ spec:
   tls:
   - hosts:
       - https-84.201.128.18
-    secretName: sui-ingress
+    secretName: ui-ingress
   rules:
     http:
       paths:
